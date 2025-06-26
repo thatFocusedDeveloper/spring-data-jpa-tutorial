@@ -54,10 +54,23 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Optional<Product> findByIdWithCategory(Long productId);
 
     // Native SQL Query Example (use if JPQL is too restrictive or for database-specific features)
-    @Query(value = "SELECT * FROM products p JOIN categories c ON p.category_id = c.id WHERE c.name = ?1", nativeQuery = true)
+    @Query(value = "SELECT p.* FROM products p JOIN category c ON p.category_id = c.id WHERE c.name = ?1", 
+           nativeQuery = true)
     List<Product> findProductsByCategoryNameNative(String categoryName);
 
     // Find products by category name with eager loading
     @Query("SELECT p FROM Product p JOIN FETCH p.category c WHERE c.name = ?1")
     List<Product> findByCategoryNameWithCategory(String categoryName);
+
+    // Native SQL Query with explicit column selection returning Object[]
+    @Query(value = "SELECT p.id, p.name, p.price, p.description, p.category_id " +
+                   "FROM products p JOIN category c ON p.category_id = c.id WHERE c.name = ?1", 
+           nativeQuery = true)
+    List<Object[]>  findProductsByCategoryNameNativeAsArray(String categoryName);
+
+    // Native SQL Query returning DTO
+    @Query(value = "SELECT p.id, p.name, p.price, c.name as category_name " +
+                   "FROM products p JOIN category c ON p.category_id = c.id WHERE c.name = ?1", 
+           nativeQuery = true)
+    List<Object[]> findProductSummaryByCategoryName(String categoryName);
 }

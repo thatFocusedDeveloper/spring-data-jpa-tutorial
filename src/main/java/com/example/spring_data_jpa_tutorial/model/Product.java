@@ -1,31 +1,37 @@
 package com.example.spring_data_jpa_tutorial.model;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.persistence.*; // Using Jakarta Persistence API (JPA) for Spring Boot 3+
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.*;
 import lombok.Data;
 
-@Entity // Marks this class as a JPA entity, meaning it maps to a database table
-@Table(name = "products")// Specifies the name of the database table (optional, defaults to class name)
-@Data // Lombok annotation to automatically generate getters, setters, equals, hashCode, and toString methods
+@Entity
+@Table(name = "products")
+@Data
+@Schema(description = "Product entity representing items for sale")
 public class Product {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Schema(description = "Unique identifier of the product", example = "1")
     private Long id;
 
     @Column(nullable = false, unique = true)
+    @Schema(description = "Name of the product", example = "Smartphone", required = true)
     private String name;
 
     @Column(nullable = false)
+    @Schema(description = "Price of the product", example = "699.99", required = true)
     private Double price;
 
+    @Schema(description = "Description of the product", example = "Latest model smartphone")
     private String description;
 
-    // Many-to-One relationship with Category
-    // Many products can belong to one category
-    @ManyToOne(fetch = FetchType.LAZY) // Many products to one category
-    @JoinColumn(name = "category_id", nullable = false) // Specifies the foreign key column in the products table
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "category_id", nullable = false)
     @JsonIgnoreProperties("products")
-    private Category category; // This field holds the associated Category object
+    @Schema(description = "Category to which the product belongs")
+    private Category category;
 
     // Constructors
     public Product() {
@@ -36,6 +42,7 @@ public class Product {
         this.name = name;
         this.price = price;
         this.description = description;
+        this.category = category; // This line was missing
     }
 
     @Override
